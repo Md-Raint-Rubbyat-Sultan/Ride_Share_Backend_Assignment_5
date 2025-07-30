@@ -1,7 +1,1 @@
-export const searchableFieldsInUser: string[] = [
-  "name",
-  "role",
-  "email",
-  "phone",
-  "address",
-];
+export const searchableFieldsInUser: string[] = ["name", "email"];

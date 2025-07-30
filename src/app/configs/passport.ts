@@ -1,8 +1,14 @@
-import passport from "passport";
-import { Strategy as localStrategy } from "passport-local";
-import { User } from "../modules/user/user.model";
-import { IsActive } from "../modules/user/user.interface";
 import bcrypt from "bcryptjs";
+import passport from "passport";
+import {
+  Strategy as googleStrategy,
+  Profile,
+  VerifyCallback,
+} from "passport-google-oauth20";
+import { Strategy as localStrategy } from "passport-local";
+import { IsActive, Role } from "../modules/user/user.interface";
+import { User } from "../modules/user/user.model";
+import { envVars } from "./env.config";
 
 passport.use(
   new localStrategy(
@@ -49,6 +55,56 @@ passport.use(
       }
 
       return done(null, isUserExist);
+    }
+  )
+);
+
+passport.use(
+  new googleStrategy(
+    {
+      clientID: envVars.GOOGLE.GOOGLE_CLIENT_ID,
+      clientSecret: envVars.GOOGLE.GOOGLE_CLIENT_SECRET,
+      callbackURL: envVars.GOOGLE.GOOGLE_CALLBACK_URL,
+    },
+    async (
+      assessToken: string,
+      refreshToken: string,
+      profile: Profile,
+      done: VerifyCallback
+    ) => {
+      const email = profile.emails?.[0].value;
+
+      if (!email) {
+        return done("Email not found.");
+      }
+
+      let user = await User.findOne({ email });
+
+      if (
+        user &&
+        (user.isActive === IsActive.BLOCKED ||
+          user.isActive === IsActive.INACTIVE)
+      ) {
+        return done(null, false, {
+          message: `User is ${user.isActive}.`,
+        });
+      }
+
+      if (user && user.isDeleted) {
+        return done(null, false, { message: "User is deleted." });
+      }
+
+      if (!user) {
+        user = await User.create({
+          name: profile.displayName,
+          email,
+          auth: [{ provider: "google", providerId: email }],
+          role: Role.USER,
+          picture: profile.photos?.[0].value,
+        });
+      }
+
+      return done(null, user);
     }
   )
 );

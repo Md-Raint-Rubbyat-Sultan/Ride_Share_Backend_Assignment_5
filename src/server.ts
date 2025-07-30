@@ -2,6 +2,7 @@ import { Server } from "http";
 import app from "./app";
 import { envVars } from "./app/configs/env.config";
 import mongoose from "mongoose";
+import { seedAdmin } from "./app/utils/seedAdmin";
 
 let server: Server;
 
@@ -20,6 +21,7 @@ const run = async () => {
 
 (async () => {
   await run();
+  await seedAdmin();
 })();
 
 process.on("SIGTERM", () => {

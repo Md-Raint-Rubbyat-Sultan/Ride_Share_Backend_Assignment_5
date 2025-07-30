@@ -5,10 +5,11 @@ import { generateToken, verifyToken } from "./jwt";
 import { AppError } from "../errorHelpers/AppError";
 import { User } from "../modules/user/user.model";
 import { JwtPayload } from "jsonwebtoken";
+import { TAuthToken } from "./setCookies";
 
 export const createToken = (
   user: Partial<IUser> & { _id?: Types.ObjectId }
-) => {
+): TAuthToken => {
   const jwtPayload = {
     userId: user._id,
     email: user.email,
