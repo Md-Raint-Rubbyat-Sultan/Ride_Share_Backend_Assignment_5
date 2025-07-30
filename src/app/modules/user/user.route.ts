@@ -16,7 +16,7 @@ router.post(
 router.get(
   "/",
   // checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-  userControllers.getAllUsre
+  userControllers.getAllUser
 );
 
 export const UserRoute = router;

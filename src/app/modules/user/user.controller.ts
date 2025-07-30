@@ -16,10 +16,10 @@ const createUser = catchAsync(
   }
 );
 
-const getAllUsre = catchAsync(
+const getAllUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const query = req.query;
-    const result = await UserServices.getAllUsre(
+    const result = await UserServices.getAllUser(
       query as Record<string, string>
     );
 
@@ -35,5 +35,5 @@ const getAllUsre = catchAsync(
 
 export const userControllers = {
   createUser,
-  getAllUsre,
+  getAllUser,
 };

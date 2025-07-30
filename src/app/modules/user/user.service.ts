@@ -26,7 +26,7 @@ const createUser = async (payload: Partial<IUser>) => {
   };
 };
 
-const getAllUsre = async (query: Record<string, string>) => {
+const getAllUser = async (query: Record<string, string>) => {
   const queryModel = new QueryBuilder(User.find(), query);
   const user = queryModel
     .search(searchableFieldsInUser)
@@ -45,5 +45,5 @@ const getAllUsre = async (query: Record<string, string>) => {
 
 export const UserServices = {
   createUser,
-  getAllUsre,
+  getAllUser,
 };

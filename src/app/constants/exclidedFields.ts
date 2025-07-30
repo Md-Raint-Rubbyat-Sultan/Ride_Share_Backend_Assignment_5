@@ -1,5 +1,5 @@
 export const excludedFields: string[] = [
-  "search",
+  "searchTerm",
   "sort",
   "fields",
   "page",

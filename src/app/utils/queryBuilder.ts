@@ -1,79 +1,76 @@
 import { Query } from "mongoose";
 import { excludedFields } from "../constants/exclidedFields";
-import { TMeta } from "./SendResponse";
 
 export class QueryBuilder<T> {
-  public modelQurey: Query<T[], T>;
-  public readonly query: Record<string, string>;
+  public modelQuery: Query<T[], T>;
+  public query: Record<string, string>;
 
   constructor(modelQuery: Query<T[], T>, query: Record<string, string>) {
-    this.modelQurey = modelQuery;
+    this.modelQuery = modelQuery;
     this.query = query;
   }
 
   filter(): this {
     const filter = { ...this.query };
-
-    for (let fields of excludedFields) {
-      delete filter[fields];
+    for (const field of excludedFields) {
+      delete filter[field];
     }
 
-    this.modelQurey = this.modelQurey.find(filter);
+    this.modelQuery = this.modelQuery.find(filter);
     return this;
   }
 
   search(searchableFields: string[]): this {
-    const searchTerms = this.query?.searchTerms?.trim() || "";
+    const searchTerm = this.query?.searchTerm || "";
 
     const searchQuery = {
-      $or: searchableFields.map((fields: string) => ({
-        [fields]: { $regex: searchTerms, $options: "i" },
+      $or: searchableFields.map((field: string) => ({
+        [field]: { $regex: searchTerm, $options: "i" },
       })),
     };
 
-    this.modelQurey = this.modelQurey.find(searchQuery);
-
+    this.modelQuery = this.modelQuery.find(searchQuery);
     return this;
   }
 
   sort(): this {
-    const sort = this.query.sort || "-createdAt";
+    const sort = this.query?.sort || "-createdAt";
 
-    this.modelQurey = this.modelQurey.sort(sort);
+    this.modelQuery = this.modelQuery.sort(sort);
     return this;
   }
 
   fields(): this {
-    const fields = this.query?.fields?.split(",").join(" ") || "";
+    const fields = this.query.fields?.split(",").join(" ") || "";
 
-    this.modelQurey = this.modelQurey.select(fields);
+    this.modelQuery = this.modelQuery.select(fields);
     return this;
   }
 
   paginate(): this {
-    const page = Number(this.query.page) || 1;
-    const limit = Number(this.query.limit) || 10;
+    const page = Number(this.query?.page) || 1;
+    const limit = Number(this.query?.limit) || 10;
     const skip = (page - 1) * limit;
 
-    this.modelQurey = this.modelQurey.skip(skip).limit(limit);
+    this.modelQuery = this.modelQuery.skip(skip).limit(limit);
     return this;
   }
 
-  async getMeta(): Promise<TMeta> {
-    const totalDoc = await this.modelQurey.clone().countDocuments();
-    const page = Number(this.query.page) || 1;
-    const limit = Number(this.query.limit) || 10;
-    const totalPage = Math.ceil(totalDoc / limit);
+  async getMeta() {
+    const totalDocument = await this.modelQuery.model.countDocuments();
+    const page = Number(this.query?.page) || 1;
+    const limit = Number(this.query?.limit) || 10;
+    const totalPage = Math.ceil(totalDocument / limit);
 
     return {
-      limit,
       page,
-      total: totalDoc,
+      limit,
+      total: totalDocument,
       totalPage,
     };
   }
 
-  build(): Promise<T[]> {
-    return this.modelQurey;
+  build() {
+    return this.modelQuery;
   }
 }
