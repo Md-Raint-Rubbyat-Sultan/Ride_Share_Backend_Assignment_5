@@ -1,8 +1,30 @@
 import { model, Schema } from "mongoose";
-import { IAuthProviders, IsActive, IUser, Role } from "./user.interface";
+import {
+  IAuthProviders,
+  IRoleChange,
+  IsActive,
+  IUser,
+  Role,
+  RoleStatus,
+} from "./user.interface";
 import bcrypt from "bcryptjs";
 import { AppError } from "../../errorHelpers/AppError";
 import { envVars } from "../../configs/env.config";
+
+const RoleChangeSchema = new Schema<IRoleChange>(
+  {
+    userId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+    currentRole: { type: String, enum: Role, required: true },
+    requestedRole: { type: String, enum: Role, required: true },
+    status: { type: String, enum: RoleStatus, required: true },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  }
+);
+
+export const RoleChange = model<IRoleChange>("RoleChange", RoleChangeSchema);
 
 const authSchema = new Schema<IAuthProviders>(
   {
@@ -48,17 +70,12 @@ userSchema.pre("save", async function (next) {
 userSchema.pre("findOneAndUpdate", async function (next) {
   try {
     const updatedDoc = this.getUpdate() as IUser;
-
     if (updatedDoc.password) {
       const hashedPassword = await bcrypt.hash(
         updatedDoc.password,
         Number(envVars.BCRYPT_SALT)
       );
-
-      this.setUpdate({
-        ...updatedDoc,
-        password: hashedPassword,
-      });
+      updatedDoc.password = hashedPassword;
     }
     next();
   } catch (error) {

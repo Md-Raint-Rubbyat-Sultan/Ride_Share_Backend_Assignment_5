@@ -72,8 +72,55 @@ const updateUser = catchAsync(
     SendResponse(res, {
       statusCode: 201,
       success: true,
-      message: "User retrived successfully.",
+      message: "User updated successfully.",
       data: result.data,
+    });
+  }
+);
+
+const getAllRoleChangeRequest = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const query = req.query;
+    const result = await UserServices.getAllRoleChangeRequest(
+      query as Record<string, string>
+    );
+
+    SendResponse(res, {
+      statusCode: 201,
+      success: true,
+      message: "Requset change role successfully.",
+      data: result.data,
+      meta: result.meta,
+    });
+  }
+);
+
+const RoleChangeRequest = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+    const { reqRole } = req.body;
+    const result = await UserServices.RoleChangeRequest(reqRole, decodedToken);
+
+    SendResponse(res, {
+      statusCode: 201,
+      success: true,
+      message: "Requset change role successfully.",
+      data: result.data,
+    });
+  }
+);
+
+const updateRole = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const _id = req.params.id;
+    const { isAccepted } = req.body;
+    await UserServices.updateRole(_id, isAccepted);
+
+    SendResponse(res, {
+      statusCode: 201,
+      success: true,
+      message: "Role update successfully.",
+      data: null,
     });
   }
 );
@@ -84,4 +131,7 @@ export const userControllers = {
   getSingleUser,
   getMe,
   updateUser,
+  RoleChangeRequest,
+  updateRole,
+  getAllRoleChangeRequest,
 };

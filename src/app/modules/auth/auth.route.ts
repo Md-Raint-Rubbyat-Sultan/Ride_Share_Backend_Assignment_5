@@ -1,9 +1,15 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { AuthControllers } from "./auth.controller";
 import { validateRequest } from "../../middlewares/validateRequest";
-import { credentialLoginZodSchema } from "./auth.validation";
+import {
+  changePasswordZodSchema,
+  credentialLoginZodSchema,
+  setPasswordZodSchema,
+} from "./auth.validation";
 import passport from "passport";
 import { envVars } from "../../configs/env.config";
+import { checkAuth } from "../../middlewares/checkAuth";
+import { Role } from "../user/user.interface";
 
 const router = Router();
 
@@ -11,6 +17,22 @@ router.post(
   "/login",
   validateRequest(credentialLoginZodSchema),
   AuthControllers.credentialLogin
+);
+
+router.post("/logout", AuthControllers.logout);
+
+router.post(
+  "/set-password",
+  checkAuth(...Object.values(Role)),
+  validateRequest(setPasswordZodSchema),
+  AuthControllers.setPassword
+);
+
+router.post(
+  "/change-password",
+  checkAuth(...Object.values(Role)),
+  validateRequest(changePasswordZodSchema),
+  AuthControllers.changePassword
 );
 
 // google-passport

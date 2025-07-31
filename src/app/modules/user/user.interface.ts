@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 export enum Role {
   ADMIN = "ADMIN",
   USER = "USER",
@@ -10,9 +12,22 @@ export enum IsActive {
   BLOCKED = "BLOCKED",
 }
 
+export enum RoleStatus {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  CANCLED = "CANCLED",
+}
+
 export interface IAuthProviders {
   provider: "credentials" | "google";
   providerId: string;
+}
+
+export interface IRoleChange {
+  userId: Types.ObjectId;
+  currentRole: Role;
+  requestedRole: Role;
+  status: RoleStatus;
 }
 
 export interface IUser {

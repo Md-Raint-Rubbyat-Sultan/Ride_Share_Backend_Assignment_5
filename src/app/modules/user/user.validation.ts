@@ -33,3 +33,11 @@ export const updateUserZodSchema = z.object({
   isVarified: z.boolean().optional(),
   address: z.string().optional(),
 });
+
+export const RoleChangeRequestZodSchema = z.object({
+  reqRole: z.string(),
+});
+
+export const updateRoleZodeSchema = z.object({
+  isAccepted: z.string(),
+});

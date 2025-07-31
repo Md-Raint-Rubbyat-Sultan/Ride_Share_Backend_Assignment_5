@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { createUserZodSchema, updateUserZodSchema } from "./user.validation";
+import {
+  createUserZodSchema,
+  RoleChangeRequestZodSchema,
+  updateRoleZodeSchema,
+  updateUserZodSchema,
+} from "./user.validation";
 import { validateRequest } from "../../middlewares/validateRequest";
 import { userControllers } from "./user.controller";
 import { checkAuth } from "../../middlewares/checkAuth";
@@ -16,6 +21,26 @@ router.post(
 router.get("/", checkAuth(Role.ADMIN), userControllers.getAllUser);
 
 router.get("/me", checkAuth(...Object.values(Role)), userControllers.getMe);
+
+router.get(
+  "/req-role/all-req",
+  checkAuth(Role.ADMIN),
+  userControllers.getAllRoleChangeRequest
+);
+
+router.post(
+  "/req-role/request",
+  checkAuth(...Object.values(Role)),
+  validateRequest(RoleChangeRequestZodSchema),
+  userControllers.RoleChangeRequest
+);
+
+router.patch(
+  "/req-role/:id",
+  checkAuth(Role.ADMIN),
+  validateRequest(updateRoleZodeSchema),
+  userControllers.RoleChangeRequest
+);
 
 router.get("/:id", checkAuth(Role.ADMIN), userControllers.getSingleUser);
 
