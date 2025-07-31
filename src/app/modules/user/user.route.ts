@@ -28,6 +28,12 @@ router.get(
   userControllers.getAllRoleChangeRequest
 );
 
+router.get(
+  "/req-role/stats",
+  checkAuth(Role.ADMIN),
+  userControllers.requestRoleStats
+);
+
 router.post(
   "/req-role/request",
   checkAuth(...Object.values(Role)),
@@ -39,7 +45,7 @@ router.patch(
   "/req-role/:id",
   checkAuth(Role.ADMIN),
   validateRequest(updateRoleZodeSchema),
-  userControllers.RoleChangeRequest
+  userControllers.updateRole
 );
 
 router.get("/:id", checkAuth(Role.ADMIN), userControllers.getSingleUser);

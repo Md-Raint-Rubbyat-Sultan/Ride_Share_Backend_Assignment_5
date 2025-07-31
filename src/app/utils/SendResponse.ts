@@ -14,7 +14,6 @@ interface TResponseData<T> {
   message: string;
   data: T;
   meta?: TMeta;
-  error?: any;
   stack?: string;
 }
 
@@ -24,10 +23,6 @@ export const SendResponse = <T>(res: Response, data: TResponseData<T>) => {
     message: data.message,
     data: data.data,
     meta: data?.meta || null,
-    errors:
-      data?.error && envVars.NODE_ENV === "development"
-        ? { error: data.error, errMessage: data.error.message }
-        : data?.error?.massage || null,
     stack: envVars.NODE_ENV === "development" ? data?.stack : null,
   });
 };

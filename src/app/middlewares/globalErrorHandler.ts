@@ -18,7 +18,7 @@ export const globalErrorHandler = (
     statusCode: status,
     success: false,
     message: message,
-    data: null,
-    error: error,
+    data: error.message,
+    stack: error.stack,
   });
 };

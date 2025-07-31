@@ -18,6 +18,11 @@ export enum RoleStatus {
   CANCLED = "CANCLED",
 }
 
+export enum IsOnline {
+  ONLINE = "ONLINE",
+  OFFLINE = "OFFLINE",
+}
+
 export interface IAuthProviders {
   provider: "credentials" | "google";
   providerId: string;
@@ -37,10 +42,11 @@ export interface IUser {
   email: string;
   password?: string;
   phone: string;
-  address: string;
+  address?: string;
   isActive?: IsActive;
   isDeleted?: boolean;
   isVerified?: boolean;
   picture?: string;
+  isOnline: IsOnline;
   createdAt?: Date;
 }

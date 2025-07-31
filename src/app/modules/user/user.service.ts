@@ -167,7 +167,9 @@ const RoleChangeRequest = async (reqRole: string, decodedToken: JwtPayload) => {
 };
 
 const updateRole = async (_id: string, payload: string) => {
-  if (payload !== (RoleStatus.ACCEPTED || RoleStatus.CANCLED)) {
+  if (
+    ![RoleStatus.ACCEPTED, RoleStatus.CANCLED].includes(payload as RoleStatus)
+  ) {
     throw new AppError(
       400,
       `Request miss matched. Request should be either ${RoleStatus.ACCEPTED} or ${RoleStatus.CANCLED}`
@@ -206,6 +208,32 @@ const updateRole = async (_id: string, payload: string) => {
   }
 };
 
+const requestRoleStats = async () => {
+  const pendingRequestPromise = RoleChange.find({
+    status: RoleStatus.PENDING,
+  }).countDocuments();
+  const acceptRequestPromise = RoleChange.find({
+    status: RoleStatus.ACCEPTED,
+  }).countDocuments();
+  const cancleRequestPromise = RoleChange.find({
+    status: RoleStatus.CANCLED,
+  }).countDocuments();
+
+  const [pendingRequest, acceptRequest, cancleRequest] = await Promise.all([
+    pendingRequestPromise,
+    acceptRequestPromise,
+    cancleRequestPromise,
+  ]);
+
+  return {
+    data: {
+      pendingRequest,
+      acceptRequest,
+      cancleRequest,
+    },
+  };
+};
+
 export const UserServices = {
   createUser,
   getAllUser,
@@ -215,4 +243,5 @@ export const UserServices = {
   RoleChangeRequest,
   updateRole,
   getAllRoleChangeRequest,
+  requestRoleStats,
 };

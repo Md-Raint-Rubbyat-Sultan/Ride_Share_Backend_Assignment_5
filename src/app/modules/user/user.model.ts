@@ -3,6 +3,7 @@ import {
   IAuthProviders,
   IRoleChange,
   IsActive,
+  IsOnline,
   IUser,
   Role,
   RoleStatus,
@@ -38,15 +39,16 @@ const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true, trim: true },
     auth: [authSchema],
-    role: { type: String, default: Role.USER },
+    role: { type: String, enum: Role, default: Role.USER },
     email: { type: String, required: true, unique: true, trim: true },
     password: { type: String },
     phone: { type: String, trim: true },
-    address: { type: String, trim: true },
+    address: { type: String, default: "Address isn't set yet.", trim: true },
     picture: { type: String },
-    isActive: { type: String, default: IsActive.ACTIVE },
+    isActive: { type: String, enum: IsActive, default: IsActive.ACTIVE },
     isDeleted: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: true },
+    isOnline: { type: String, enum: IsOnline, default: IsOnline.ONLINE },
   },
   { timestamps: true, versionKey: false }
 );

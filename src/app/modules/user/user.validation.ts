@@ -1,5 +1,5 @@
 import z from "zod";
-import { IsActive, Role } from "./user.interface";
+import { IsActive, IsOnline, Role, RoleStatus } from "./user.interface";
 
 export const createUserZodSchema = z.object({
   name: z
@@ -13,7 +13,7 @@ export const createUserZodSchema = z.object({
   phone: z.string().regex(/^(?:\+8801\d{9})|01\d{9}$/, {
     message: "Invalied phone number. Formet: +8801xxxxxxxxx or 01xxxxxxxxx",
   }),
-  address: z.string(),
+  address: z.string().optional(),
 });
 
 export const updateUserZodSchema = z.object({
@@ -30,14 +30,17 @@ export const updateUserZodSchema = z.object({
   role: z.enum(Object.values(Role) as [string]).optional(),
   isActive: z.enum(Object.values(IsActive) as [string]).optional(),
   isDeleted: z.boolean().optional(),
-  isVarified: z.boolean().optional(),
+  isVerified: z.boolean().optional(),
   address: z.string().optional(),
+  isOnline: z.enum(Object.values(IsOnline)).optional(),
 });
 
 export const RoleChangeRequestZodSchema = z.object({
-  reqRole: z.string(),
+  reqRole: z.enum([Role.ADMIN, Role.DRIVER], {
+    message: "Can't request for being a user.",
+  }),
 });
 
 export const updateRoleZodeSchema = z.object({
-  isAccepted: z.string(),
+  isAccepted: z.enum([RoleStatus.ACCEPTED, RoleStatus.CANCLED]),
 });

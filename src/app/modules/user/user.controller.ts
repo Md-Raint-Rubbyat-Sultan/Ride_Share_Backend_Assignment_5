@@ -125,6 +125,19 @@ const updateRole = catchAsync(
   }
 );
 
+const requestRoleStats = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await UserServices.requestRoleStats();
+
+    SendResponse(res, {
+      statusCode: 201,
+      success: true,
+      message: "Role update successfully.",
+      data: result.data,
+    });
+  }
+);
+
 export const userControllers = {
   createUser,
   getAllUser,
@@ -134,4 +147,5 @@ export const userControllers = {
   RoleChangeRequest,
   updateRole,
   getAllRoleChangeRequest,
+  requestRoleStats,
 };
