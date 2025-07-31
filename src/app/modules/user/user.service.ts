@@ -12,7 +12,8 @@ import {
   RoleStatus,
 } from "./user.interface";
 import { RoleChange, User } from "./user.model";
-import { RideStatus } from "../ride/ride.interface";
+import { createToken } from "../../utils/createUsreToken";
+import { steCookies } from "../../utils/setCookies";
 
 const createUser = async (payload: Partial<IUser>) => {
   const isUserExist = await User.findOne({ email: payload.email });
@@ -146,6 +147,16 @@ const RoleChangeRequest = async (
   payload: { reqRole: string; vehicle: IVehicle },
   decodedToken: JwtPayload
 ) => {
+  const isRoleRequestExist = await RoleChange.find({
+    userId: decodedToken.userId,
+  });
+
+  if (
+    isRoleRequestExist.some((status) => status.status === RoleStatus.PENDING)
+  ) {
+    throw new AppError(400, "Your previous request pending.");
+  }
+
   if (payload.reqRole === Role.ADMIN && decodedToken.role === Role.ADMIN) {
     throw new AppError(400, "You are already an Admin");
   }
@@ -203,7 +214,7 @@ const updateRole = async (_id: string, payload: string) => {
     }
 
     if (updatedRole.status === RoleStatus.ACCEPTED) {
-      await User.findByIdAndUpdate(
+      const newUser = await User.findByIdAndUpdate(
         updatedRole.userId,
         {
           role: updatedRole.requestedRole,
@@ -212,12 +223,17 @@ const updateRole = async (_id: string, payload: string) => {
               ? updatedRole.Vehicle
               : null,
         },
-        { runValidators: true, session }
-      );
+        { new: true, runValidators: true, session }
+      ).select("-password");
+
+      if (!newUser) {
+        throw new AppError(400, "Failed to create token. User not found.");
+      }
+
       await session.commitTransaction();
       session.endSession();
       return {
-        data: "Role update successfully.",
+        data: newUser,
       };
     }
 

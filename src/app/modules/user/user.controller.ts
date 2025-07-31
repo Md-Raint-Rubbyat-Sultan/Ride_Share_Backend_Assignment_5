@@ -3,6 +3,8 @@ import { catchAsync } from "../../utils/catchAsync";
 import { UserServices } from "./user.service";
 import { SendResponse } from "../../utils/SendResponse";
 import { JwtPayload } from "jsonwebtoken";
+import { createToken } from "../../utils/createUsreToken";
+import { steCookies } from "../../utils/setCookies";
 
 const createUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -88,7 +90,7 @@ const getAllRoleChangeRequest = catchAsync(
     SendResponse(res, {
       statusCode: 201,
       success: true,
-      message: "Requset change role successfully.",
+      message: "Changed role retrived successfully.",
       data: result.data,
       meta: result.meta,
     });
@@ -116,6 +118,13 @@ const updateRole = catchAsync(
     const { isAccepted } = req.body;
     const result = await UserServices.updateRole(_id, isAccepted);
 
+    if (result?.data) {
+      if (typeof result.data !== "string") {
+        const newUserToken = createToken(result.data);
+        steCookies(res, newUserToken);
+      }
+    }
+
     SendResponse(res, {
       statusCode: 201,
       success: true,
@@ -132,7 +141,7 @@ const requestRoleStats = catchAsync(
     SendResponse(res, {
       statusCode: 201,
       success: true,
-      message: "Role update successfully.",
+      message: "Role Stats.",
       data: result.data,
     });
   }

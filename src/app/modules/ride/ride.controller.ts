@@ -50,7 +50,7 @@ const rideHistory = catchAsync(
     SendResponse(res, {
       statusCode: 201,
       success: true,
-      message: "Request cancel successfully",
+      message: "Ride history retrived successfully",
       data: result.data,
       meta: result.meta,
     });
@@ -80,7 +80,7 @@ const allRideHistory = catchAsync(
     SendResponse(res, {
       statusCode: 201,
       success: true,
-      message: "Request cancel successfully",
+      message: "Ride history retrived successfully",
       data: result.data,
       meta: result.meta,
     });
