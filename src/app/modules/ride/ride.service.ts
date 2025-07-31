@@ -5,6 +5,7 @@ import { AppError } from "../../errorHelpers/AppError";
 import { calculateDistance } from "../../utils/calculateDistance";
 import { Ride } from "./ride.model";
 import { QueryBuilder } from "../../utils/queryBuilder";
+import { IsOnline, Role } from "../user/user.interface";
 
 const rideRequest = async (
   payload: Partial<IRide>,
@@ -34,6 +35,18 @@ const rideRequest = async (
     throw new AppError(
       400,
       "Please complete the requested ride first or cancel it."
+    );
+  }
+
+  const isDriverAvailable = await User.find({
+    role: Role.DRIVER,
+    isOnline: IsOnline.ONLINE,
+  });
+  console.log(isDriverAvailable);
+  if (isDriverAvailable.length <= 0) {
+    throw new AppError(
+      404,
+      "Sorry currently no driver is available. Please wait or requset later."
     );
   }
 
