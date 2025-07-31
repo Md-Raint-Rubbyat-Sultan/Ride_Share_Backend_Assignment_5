@@ -15,12 +15,17 @@ export enum IsActive {
 export enum RoleStatus {
   PENDING = "PENDING",
   ACCEPTED = "ACCEPTED",
-  CANCLED = "CANCLED",
+  CANCELED = "CANCELED",
 }
 
 export enum IsOnline {
   ONLINE = "ONLINE",
   OFFLINE = "OFFLINE",
+}
+
+export enum IVehicle {
+  CAR = "CAR",
+  BIKE = "BIKE",
 }
 
 export interface IAuthProviders {
@@ -33,6 +38,7 @@ export interface IRoleChange {
   currentRole: Role;
   requestedRole: Role;
   status: RoleStatus;
+  Vehicle?: IVehicle | null;
 }
 
 export interface IUser {
@@ -48,5 +54,6 @@ export interface IUser {
   isVerified?: boolean;
   picture?: string;
   isOnline: IsOnline;
+  Vehicle?: IVehicle | null;
   createdAt?: Date;
 }

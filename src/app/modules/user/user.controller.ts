@@ -98,8 +98,8 @@ const getAllRoleChangeRequest = catchAsync(
 const RoleChangeRequest = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload;
-    const { reqRole } = req.body;
-    const result = await UserServices.RoleChangeRequest(reqRole, decodedToken);
+    const payload = req.body;
+    const result = await UserServices.RoleChangeRequest(payload, decodedToken);
 
     SendResponse(res, {
       statusCode: 201,
@@ -114,13 +114,13 @@ const updateRole = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const _id = req.params.id;
     const { isAccepted } = req.body;
-    await UserServices.updateRole(_id, isAccepted);
+    const result = await UserServices.updateRole(_id, isAccepted);
 
     SendResponse(res, {
       statusCode: 201,
       success: true,
-      message: "Role update successfully.",
-      data: null,
+      message: "Role update",
+      data: result?.data,
     });
   }
 );

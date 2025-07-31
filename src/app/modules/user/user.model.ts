@@ -5,6 +5,7 @@ import {
   IsActive,
   IsOnline,
   IUser,
+  IVehicle,
   Role,
   RoleStatus,
 } from "./user.interface";
@@ -18,6 +19,7 @@ const RoleChangeSchema = new Schema<IRoleChange>(
     currentRole: { type: String, enum: Role, required: true },
     requestedRole: { type: String, enum: Role, required: true },
     status: { type: String, enum: RoleStatus, required: true },
+    Vehicle: { type: String, enum: IVehicle, default: null },
   },
   {
     timestamps: true,
@@ -49,6 +51,7 @@ const userSchema = new Schema<IUser>(
     isDeleted: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: true },
     isOnline: { type: String, enum: IsOnline, default: IsOnline.ONLINE },
+    Vehicle: { type: String, enum: IVehicle, default: null },
   },
   { timestamps: true, versionKey: false }
 );

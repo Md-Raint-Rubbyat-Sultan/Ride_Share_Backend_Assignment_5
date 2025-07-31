@@ -7,10 +7,12 @@ import {
   IRoleChange,
   IsActive,
   IUser,
+  IVehicle,
   Role,
   RoleStatus,
 } from "./user.interface";
 import { RoleChange, User } from "./user.model";
+import { RideStatus } from "../ride/ride.interface";
 
 const createUser = async (payload: Partial<IUser>) => {
   const isUserExist = await User.findOne({ email: payload.email });
@@ -140,23 +142,31 @@ const getAllRoleChangeRequest = async (query: Record<string, string>) => {
   };
 };
 
-const RoleChangeRequest = async (reqRole: string, decodedToken: JwtPayload) => {
-  if (reqRole === Role.ADMIN && decodedToken.role === Role.ADMIN) {
+const RoleChangeRequest = async (
+  payload: { reqRole: string; vehicle: IVehicle },
+  decodedToken: JwtPayload
+) => {
+  if (payload.reqRole === Role.ADMIN && decodedToken.role === Role.ADMIN) {
     throw new AppError(400, "You are already an Admin");
   }
 
   if (
-    (reqRole === Role.USER || reqRole === Role.DRIVER) &&
+    (payload.reqRole === Role.USER || payload.reqRole === Role.DRIVER) &&
     (decodedToken.role === Role.DRIVER || decodedToken.role === Role.ADMIN)
   ) {
     throw new AppError(400, "Driver or Admin can't ba Driver or User again.");
   }
 
+  if (payload.reqRole === Role.DRIVER && !payload.vehicle) {
+    throw new AppError(400, "Driver must have a vehicle.");
+  }
+
   const changeRequestPayload: IRoleChange = {
     userId: decodedToken.userId,
     currentRole: decodedToken.role,
-    requestedRole: reqRole as Role,
+    requestedRole: payload.reqRole as Role,
     status: RoleStatus.PENDING,
+    Vehicle: payload.reqRole === "DRIVER" ? payload.vehicle : null,
   };
 
   const changedRoleRequest = await RoleChange.create(changeRequestPayload);
@@ -168,11 +178,11 @@ const RoleChangeRequest = async (reqRole: string, decodedToken: JwtPayload) => {
 
 const updateRole = async (_id: string, payload: string) => {
   if (
-    ![RoleStatus.ACCEPTED, RoleStatus.CANCLED].includes(payload as RoleStatus)
+    ![RoleStatus.ACCEPTED, RoleStatus.CANCELED].includes(payload as RoleStatus)
   ) {
     throw new AppError(
       400,
-      `Request miss matched. Request should be either ${RoleStatus.ACCEPTED} or ${RoleStatus.CANCLED}`
+      `Request miss matched. Request should be either ${RoleStatus.ACCEPTED} or ${RoleStatus.CANCELED}`
     );
   }
 
@@ -192,17 +202,35 @@ const updateRole = async (_id: string, payload: string) => {
       throw new AppError(400, "Faild to updated user Role.");
     }
 
-    await User.findByIdAndUpdate(
-      updatedRole.userId,
-      { role: updatedRole.requestedRole },
-      { runValidators: true, session }
-    );
+    if (updatedRole.status === RoleStatus.ACCEPTED) {
+      await User.findByIdAndUpdate(
+        updatedRole.userId,
+        {
+          role: updatedRole.requestedRole,
+          Vehicle:
+            updatedRole.requestedRole === Role.DRIVER
+              ? updatedRole.Vehicle
+              : null,
+        },
+        { runValidators: true, session }
+      );
+      await session.commitTransaction();
+      session.endSession();
+      return {
+        data: "Role update successfully.",
+      };
+    }
 
-    await session.commitTransaction();
-    session.endSession();
+    if (updatedRole.status === RoleStatus.CANCELED) {
+      await session.commitTransaction();
+      session.endSession();
+      return { data: "Role update request rejected by admin" };
+    }
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
+
+    console.log(error);
 
     throw new AppError(400, "Faild to update role.");
   }
@@ -216,7 +244,7 @@ const requestRoleStats = async () => {
     status: RoleStatus.ACCEPTED,
   }).countDocuments();
   const cancleRequestPromise = RoleChange.find({
-    status: RoleStatus.CANCLED,
+    status: RoleStatus.CANCELED,
   }).countDocuments();
 
   const [pendingRequest, acceptRequest, cancleRequest] = await Promise.all([

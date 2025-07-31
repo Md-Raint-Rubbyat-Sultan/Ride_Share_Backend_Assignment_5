@@ -1,5 +1,11 @@
 import z from "zod";
-import { IsActive, IsOnline, Role, RoleStatus } from "./user.interface";
+import {
+  IsActive,
+  IsOnline,
+  IVehicle,
+  Role,
+  RoleStatus,
+} from "./user.interface";
 
 export const createUserZodSchema = z.object({
   name: z
@@ -39,8 +45,13 @@ export const RoleChangeRequestZodSchema = z.object({
   reqRole: z.enum([Role.ADMIN, Role.DRIVER], {
     message: "Can't request for being a user.",
   }),
+  vehicle: z
+    .enum(Object.values(IVehicle), {
+      message: "Only Car and Bike are allowed.",
+    })
+    .optional(),
 });
 
 export const updateRoleZodeSchema = z.object({
-  isAccepted: z.enum([RoleStatus.ACCEPTED, RoleStatus.CANCLED]),
+  isAccepted: z.enum([RoleStatus.ACCEPTED, RoleStatus.CANCELED]),
 });
