@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { TError } from "../interfaces/globalErrorHandler";
+import { TError } from "../interfaces/globalErrorhandler";
 
 export const handleCastError = (error: mongoose.Error.CastError): TError => {
   return {

@@ -2,6 +2,9 @@
 
 A backend Node.js API for managing a ride-sharing platform, supporting features like user management, ride requests, driver assignment, and cost calculation.
 
+🚀 Live Demo
+🔗 **Live Link:** [https://ride-booking-backend-assignment-5.vercel.app/](https://ride-booking-backend-assignment-5.vercel.app/)
+
 ## 📦 Tech Stack
 
 - **Node.js**

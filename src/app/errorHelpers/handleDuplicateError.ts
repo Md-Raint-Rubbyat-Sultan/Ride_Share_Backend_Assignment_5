@@ -1,4 +1,4 @@
-import { TError } from "../interfaces/globalErrorHandler";
+import { TError } from "../interfaces/globalErrorhandler";
 
 export const handleDuplicateError = (error: any): TError => {
   const matchedArray = error.errmsg.match(/"([^"]*)"/);
