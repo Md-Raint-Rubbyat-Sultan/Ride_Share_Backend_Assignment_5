@@ -53,7 +53,7 @@ export interface IUser {
   isDeleted?: boolean;
   isVerified?: boolean;
   picture?: string;
-  isOnline: IsOnline;
+  isOnline?: IsOnline;
   Vehicle?: IVehicle | null;
   createdAt?: Date;
 }

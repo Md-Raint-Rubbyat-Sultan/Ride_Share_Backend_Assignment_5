@@ -21,6 +21,8 @@ router.post(
 
 router.post("/logout", AuthControllers.logout);
 
+router.post("/refresh-token", AuthControllers.createAccessToken);
+
 router.post(
   "/set-password",
   checkAuth(...Object.values(Role)),

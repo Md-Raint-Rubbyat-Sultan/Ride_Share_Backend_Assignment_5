@@ -20,7 +20,7 @@ const locationSchema = new Schema<ILoaction>(
 const rideSchema = new Schema<IRide>(
   {
     riderId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
-    driverId: { type: Schema.Types.ObjectId, ref: "User" },
+    driverId: { type: Schema.Types.ObjectId, ref: "User", default: null },
     rideStatus: {
       type: String,
       enum: RideStatus,

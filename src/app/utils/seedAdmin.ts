@@ -9,7 +9,7 @@ export const seedAdmin = async () => {
     });
 
     if (isSuperAdminExist) {
-      console.log("Super admin already exist.");
+      console.log("Admin already exist.");
       return;
     }
 
@@ -18,8 +18,8 @@ export const seedAdmin = async () => {
       providerId: envVars.SUPER_ADMIN.SUPER_ADMIN_EMAIL,
     };
 
-    const superAdminPayload: IUser = {
-      name: "Super Admin",
+    const adminPayload: IUser = {
+      name: "Admin",
       email: envVars.SUPER_ADMIN.SUPER_ADMIN_EMAIL,
       password: envVars.SUPER_ADMIN.SUPER_ADMIN_PASSWORD,
       auth: [authProvider],
@@ -28,7 +28,7 @@ export const seedAdmin = async () => {
       address: envVars.SUPER_ADMIN.SUPER_ADMIN_ADDRESS,
     };
 
-    const superAdmin = await User.create(superAdminPayload);
+    const superAdmin = await User.create(adminPayload);
 
     console.log(superAdmin);
   } catch (error) {

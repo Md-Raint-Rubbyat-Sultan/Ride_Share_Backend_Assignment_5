@@ -42,7 +42,7 @@ const rideRequest = async (
     role: Role.DRIVER,
     isOnline: IsOnline.ONLINE,
   });
-  console.log(isDriverAvailable);
+
   if (isDriverAvailable.length <= 0) {
     throw new AppError(
       404,

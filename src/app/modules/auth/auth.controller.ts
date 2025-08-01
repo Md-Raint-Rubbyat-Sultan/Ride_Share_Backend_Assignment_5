@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from "express";
+import { JwtPayload } from "jsonwebtoken";
 import passport from "passport";
 import { envVars } from "../../configs/env.config";
 import { AppError } from "../../errorHelpers/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { createToken } from "../../utils/createUsreToken";
 import { SendResponse } from "../../utils/SendResponse";
-import { steCookies, TAuthToken } from "../../utils/setCookies";
+import { steCookies } from "../../utils/setCookies";
 import { AuthServices } from "./auth.service";
-import { JwtPayload } from "jsonwebtoken";
 
 const credentialLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -81,11 +81,28 @@ const logout = catchAsync(
       secure: envVars.NODE_ENV === "production",
       sameSite: "lax",
     });
+
     SendResponse(res, {
       statusCode: 200,
       success: true,
       message: "logout successfully.",
       data: null,
+    });
+  }
+);
+
+const createAccessToken = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const refreshToken = req.cookies.refereshToken;
+    const result = await AuthServices.createAccessToken(refreshToken);
+
+    steCookies(res, { accessToken: result.data });
+
+    SendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "access token retrived successfully.",
+      data: result.data,
     });
   }
 );
@@ -118,4 +135,5 @@ export const AuthControllers = {
   setPassword,
   changePassword,
   logout,
+  createAccessToken,
 };
