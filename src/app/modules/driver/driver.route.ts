@@ -19,6 +19,12 @@ router.get(
   DriverControllers.getEarningHistory
 );
 
+router.get(
+  "/pending-ride/:id",
+  checkAuth(Role.DRIVER),
+  DriverControllers.pendingRideStatus
+);
+
 router.patch(
   "/request/:id",
   checkAuth(Role.DRIVER, Role.ADMIN),

@@ -10,11 +10,11 @@ export const calculateDistance = (
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
 
-  const a =
+  const area =
     Math.sin(dLat / 2) ** 2 +
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const coordibate = 2 * Math.atan2(Math.sqrt(area), Math.sqrt(1 - area));
 
-  return R * c;
+  return R * coordibate;
 };

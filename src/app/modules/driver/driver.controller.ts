@@ -56,8 +56,24 @@ const beADriver = catchAsync(
   }
 );
 
+const pendingRideStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const _id = req.params.id;
+    const decodedToken = req.user as JwtPayload;
+    const result = await DriverServices.pendingRideStatus(_id, decodedToken);
+
+    SendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Ride status updated",
+      data: result.data,
+    });
+  }
+);
+
 export const DriverControllers = {
   getRideRequest,
   getEarningHistory,
   beADriver,
+  pendingRideStatus,
 };

@@ -48,8 +48,20 @@ const beADriver = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(voi
         data: result.data,
     });
 }));
+const pendingRideStatus = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const _id = req.params.id;
+    const decodedToken = req.user;
+    const result = yield driver_service_1.DriverServices.pendingRideStatus(_id, decodedToken);
+    (0, SendResponse_1.SendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Ride status updated",
+        data: result.data,
+    });
+}));
 exports.DriverControllers = {
     getRideRequest,
     getEarningHistory,
     beADriver,
+    pendingRideStatus,
 };

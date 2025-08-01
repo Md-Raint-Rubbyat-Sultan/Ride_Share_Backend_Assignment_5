@@ -34,6 +34,7 @@ const seedAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
             role: user_interface_1.Role.ADMIN,
             phone: env_config_1.envVars.SUPER_ADMIN.SUPER_ADMIN_PHONE,
             address: env_config_1.envVars.SUPER_ADMIN.SUPER_ADMIN_ADDRESS,
+            isVerified: true,
         };
         const superAdmin = yield user_model_1.User.create(adminPayload);
         console.log(superAdmin);

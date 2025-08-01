@@ -135,8 +135,21 @@ const beADriver = (_id, payload, decodedToken) => __awaiter(void 0, void 0, void
         data: updatedRide,
     };
 });
+const pendingRideStatus = (_id, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    const pendingStatus = yield ride_model_1.Ride.findOne({
+        _id: _id,
+        driverId: decodedToken.userId,
+        rideStatus: {
+            $in: [ride_interface_1.RideStatus.ACCEPTED, ride_interface_1.RideStatus.IN_TRANSIT, ride_interface_1.RideStatus.PICKED_UP],
+        },
+    });
+    return {
+        data: pendingStatus,
+    };
+});
 exports.DriverServices = {
     getRideRequest,
     getEarningHistory,
     beADriver,
+    pendingRideStatus,
 };

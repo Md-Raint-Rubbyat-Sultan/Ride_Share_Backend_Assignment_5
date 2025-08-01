@@ -26,6 +26,7 @@ export const seedAdmin = async () => {
       role: Role.ADMIN,
       phone: envVars.SUPER_ADMIN.SUPER_ADMIN_PHONE,
       address: envVars.SUPER_ADMIN.SUPER_ADMIN_ADDRESS,
+      isVerified: true,
     };
 
     const superAdmin = await User.create(adminPayload);

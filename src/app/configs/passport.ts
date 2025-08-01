@@ -101,6 +101,7 @@ passport.use(
           auth: [{ provider: "google", providerId: email }],
           role: Role.USER,
           picture: profile.photos?.[0].value,
+          isVerified: true,
         });
       }
 

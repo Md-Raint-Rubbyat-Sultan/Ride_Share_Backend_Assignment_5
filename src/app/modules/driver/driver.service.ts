@@ -174,8 +174,23 @@ const beADriver = async (
   };
 };
 
+const pendingRideStatus = async (_id: string, decodedToken: JwtPayload) => {
+  const pendingStatus = await Ride.findOne({
+    _id: _id,
+    driverId: decodedToken.userId,
+    rideStatus: {
+      $in: [RideStatus.ACCEPTED, RideStatus.IN_TRANSIT, RideStatus.PICKED_UP],
+    },
+  });
+
+  return {
+    data: pendingStatus,
+  };
+};
+
 export const DriverServices = {
   getRideRequest,
   getEarningHistory,
   beADriver,
+  pendingRideStatus,
 };

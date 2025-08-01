@@ -72,6 +72,7 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
             auth: [{ provider: "google", providerId: email }],
             role: user_interface_1.Role.USER,
             picture: (_b = profile.photos) === null || _b === void 0 ? void 0 : _b[0].value,
+            isVerified: true,
         });
     }
     return done(null, user);
