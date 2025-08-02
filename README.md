@@ -238,3 +238,7 @@ body:{
 }
 
 ````
+
+## You can find all the demo of routes in the file Ride share.postman_collection.json
+
+- Cpoy Ride share.postman_collection.json -> postman.exe
