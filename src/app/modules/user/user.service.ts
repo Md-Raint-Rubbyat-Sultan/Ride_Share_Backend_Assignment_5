@@ -156,10 +156,10 @@ const getAllRoleChangeRequest = async (query: Record<string, string>) => {
     RoleChange.find({ status: RoleStatus.PENDING }),
     query
   );
-  const requsetedChanges = queryModel.sort().paginate();
+  const requsetedChanges = queryModel.filter().sort().paginate();
 
   const [data, meta] = await Promise.all([
-    (await requsetedChanges).build(),
+    (await requsetedChanges).build().populate("userId", "-password"),
     queryModel.getMeta(),
   ]);
   return {
