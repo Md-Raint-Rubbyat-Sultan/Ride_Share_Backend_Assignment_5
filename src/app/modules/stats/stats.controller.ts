@@ -16,6 +16,20 @@ const userStats = catchAsync(
   }
 );
 
+const rideStats = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await statsServices.rideStats();
+
+    SendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "User stats retrived",
+      data: result.data,
+    });
+  }
+);
+
 export const statsControllers = {
   userStats,
+  rideStats,
 };
