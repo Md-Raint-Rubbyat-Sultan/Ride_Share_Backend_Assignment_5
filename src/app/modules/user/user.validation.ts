@@ -29,8 +29,8 @@ export const updateUserZodSchema = z.object({
     .optional(),
   phone: z
     .string()
-    .regex(/^(?:\+8801\d[9])|01\d[9]$/, {
-      message: "Invalied phone number. Formet: +8801xxxxxxxxx or 01xxxxxxxxx",
+    .regex(/^(?:\+8801\d{9})|01\d{9}$/, {
+      error: "Invalied phone number. Formet: +8801xxxxxxxxx or 01xxxxxxxxx",
     })
     .optional(),
   role: z.enum(Object.values(Role) as [string]).optional(),
@@ -39,6 +39,7 @@ export const updateUserZodSchema = z.object({
   isVerified: z.boolean().optional(),
   address: z.string().optional(),
   isOnline: z.enum(Object.values(IsOnline)).optional(),
+  Vehicle: z.enum(Object.values(IVehicle)).optional(),
 });
 
 export const RoleChangeRequestZodSchema = z.object({

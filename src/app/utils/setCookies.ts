@@ -1,5 +1,4 @@
 import { Response } from "express";
-import { envVars } from "../configs/env.config";
 
 export interface TAuthToken {
   accessToken?: string;
@@ -13,7 +12,7 @@ export const steCookies = (
   if (accessToken) {
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
-      secure: envVars.NODE_ENV === "production",
+      secure: true,
       sameSite: "none",
     });
   }
@@ -21,7 +20,7 @@ export const steCookies = (
   if (refreshToken) {
     res.cookie("refereshToken", refreshToken, {
       httpOnly: true,
-      secure: envVars.NODE_ENV === "production",
+      secure: true,
       sameSite: "none",
     });
   }

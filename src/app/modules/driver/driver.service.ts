@@ -7,16 +7,26 @@ import { User } from "../user/user.model";
 import { IsOnline } from "../user/user.interface";
 import { AppError } from "../../errorHelpers/AppError";
 
-const getRideRequest = async (query: Record<string, string>) => {
+const now = new Date();
+const sevenDaysAgo = new Date(new Date().setDate(now.getDate() - 7));
+const thirtyDaysAgo = new Date(new Date().setDate(now.getDate() - 30));
+
+const getRideRequest = async (
+  query: Record<string, string>,
+  decodedToken: JwtPayload
+) => {
   const querModel = new QueryBuilder(
-    Ride.find({ rideStatus: RideStatus.REQUESTED }),
+    Ride.find({
+      rideStatus: RideStatus.REQUESTED,
+      riderId: { $ne: decodedToken.userId },
+    }),
     query
   );
 
   const availableRide = querModel.sort().paginate();
 
   const [data, meta] = await Promise.all([
-    availableRide.build(),
+    (await availableRide).build().populate("riderId", "-password"),
     querModel.getMeta(),
   ]);
 
@@ -55,14 +65,54 @@ const getEarningHistory = async (
     },
   ]);
 
-  const [allData, total, meta] = await Promise.all([
-    earningHistory.build(),
-    totalEarning,
-    querModel.getMeta(),
+  const sevenDaysEarning = Ride.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: sevenDaysAgo },
+        rideStatus: RideStatus.COMPLETED,
+        driverId: new Types.ObjectId(decodedToken.userId),
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: "$costOfRide" },
+      },
+    },
   ]);
 
+  const monthlyEarningPromise = Ride.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: thirtyDaysAgo },
+        rideStatus: RideStatus.COMPLETED,
+        driverId: new Types.ObjectId(decodedToken.userId),
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: "$costOfRide" },
+      },
+    },
+  ]);
+
+  const [allData, total, weeklyEarning, monthlyEarning, meta] =
+    await Promise.all([
+      (await earningHistory).build(),
+      totalEarning,
+      sevenDaysEarning,
+      monthlyEarningPromise,
+      querModel.getMeta(),
+    ]);
+
   return {
-    data: { data: allData, totalEarning: total[0].totalEarning },
+    data: {
+      data: allData,
+      totalEarning: total[0]?.totalEarning,
+      weeklyEarning: weeklyEarning[0]?.total,
+      monthlyEarning: monthlyEarning[0]?.total,
+    },
     meta,
   };
 };
@@ -174,14 +224,13 @@ const beADriver = async (
   };
 };
 
-const pendingRideStatus = async (_id: string, decodedToken: JwtPayload) => {
+const pendingRideStatus = async (decodedToken: JwtPayload) => {
   const pendingStatus = await Ride.findOne({
-    _id: _id,
     driverId: decodedToken.userId,
     rideStatus: {
       $in: [RideStatus.ACCEPTED, RideStatus.IN_TRANSIT, RideStatus.PICKED_UP],
     },
-  });
+  }).populate("riderId", "-password");
 
   return {
     data: pendingStatus,

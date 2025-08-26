@@ -22,6 +22,8 @@ router.get("/", checkAuth(Role.ADMIN), userControllers.getAllUser);
 
 router.get("/me", checkAuth(...Object.values(Role)), userControllers.getMe);
 
+router.get("/admins", userControllers.getAdmins);
+
 router.get(
   "/req-role/all-req",
   checkAuth(Role.ADMIN),

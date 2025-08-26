@@ -9,7 +9,7 @@ import { IsActive } from "../modules/user/user.interface";
 
 export const checkAuth = (...authRoles: string[]) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const accessToken = req.headers.authorization;
+    const accessToken = req.cookies.accessToken || req.headers.authorization;
 
     if (!accessToken) {
       throw new AppError(403, "Token not found. You'r unauthorized.");

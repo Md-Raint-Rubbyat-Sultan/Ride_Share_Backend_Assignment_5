@@ -7,8 +7,10 @@ import { JwtPayload } from "jsonwebtoken";
 const getRideRequest = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const query = req.query;
+    const decodedToken = req.user;
     const result = await DriverServices.getRideRequest(
-      query as Record<string, string>
+      query as Record<string, string>,
+      decodedToken as JwtPayload
     );
 
     SendResponse(res, {
@@ -58,9 +60,8 @@ const beADriver = catchAsync(
 
 const pendingRideStatus = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const _id = req.params.id;
     const decodedToken = req.user as JwtPayload;
-    const result = await DriverServices.pendingRideStatus(_id, decodedToken);
+    const result = await DriverServices.pendingRideStatus(decodedToken);
 
     SendResponse(res, {
       statusCode: 200,

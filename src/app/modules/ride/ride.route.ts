@@ -14,6 +14,12 @@ router.post(
   RideControllers.rideRequest
 );
 
+router.get(
+  "/ride-details",
+  checkAuth(...Object.values(Role)),
+  RideControllers.rideDetails
+);
+
 router.patch(
   "/cancel",
   checkAuth(...Object.values(Role)),

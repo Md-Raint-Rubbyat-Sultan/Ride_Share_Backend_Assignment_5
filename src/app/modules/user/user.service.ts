@@ -12,8 +12,6 @@ import {
   RoleStatus,
 } from "./user.interface";
 import { RoleChange, User } from "./user.model";
-import { createToken } from "../../utils/createUsreToken";
-import { steCookies } from "../../utils/setCookies";
 
 const createUser = async (payload: Partial<IUser>) => {
   const isUserExist = await User.findOne({ email: payload.email });
@@ -32,8 +30,10 @@ const createUser = async (payload: Partial<IUser>) => {
     auth: [authProvider],
   });
 
+  const { password, ...rest } = user.toObject();
+
   return {
-    data: user,
+    data: rest,
   };
 };
 
@@ -47,7 +47,7 @@ const getAllUser = async (query: Record<string, string>) => {
     .paginate();
 
   let [data, meta] = await Promise.all([
-    user.build().select("-password"),
+    (await user).build().select("-password"),
     queryModel.getMeta(),
   ]);
 
@@ -71,6 +71,18 @@ const getSingleUser = async (_id: string) => {
 
 const getMe = async (_id: string) => {
   const user = await User.findById(_id).select("-password");
+
+  if (!user) {
+    throw new AppError(404, "User not found.");
+  }
+
+  return {
+    data: user,
+  };
+};
+
+const getAdmins = async () => {
+  const user = await User.find({ role: Role.ADMIN }).select("-password");
 
   if (!user) {
     throw new AppError(404, "User not found.");
@@ -109,11 +121,21 @@ const updateUser = async (
     }
   }
 
+  if (payload.Vehicle && isUserExist.role !== Role.DRIVER) {
+    throw new AppError(400, "You must be a driver to have vehicle.");
+  }
+
+  const isUpdateable = await User.findById(decodedToken.userId);
+
+  if (!isUpdateable) {
+    throw new AppError(404, "User not found.");
+  }
+
   if (
-    !isUserExist.isVerified ||
-    isUserExist.isActive === IsActive.INACTIVE ||
-    isUserExist.isActive === IsActive.BLOCKED ||
-    isUserExist.isDeleted
+    !isUpdateable.isVerified ||
+    isUpdateable.isActive === IsActive.INACTIVE ||
+    isUpdateable.isActive === IsActive.BLOCKED ||
+    isUpdateable.isDeleted
   ) {
     throw new AppError(
       400,
@@ -130,11 +152,14 @@ const updateUser = async (
 };
 
 const getAllRoleChangeRequest = async (query: Record<string, string>) => {
-  const queryModel = new QueryBuilder(RoleChange.find(), query);
+  const queryModel = new QueryBuilder(
+    RoleChange.find({ status: RoleStatus.PENDING }),
+    query
+  );
   const requsetedChanges = queryModel.sort().paginate();
 
   const [data, meta] = await Promise.all([
-    requsetedChanges.build(),
+    (await requsetedChanges).build(),
     queryModel.getMeta(),
   ]);
   return {
@@ -283,6 +308,7 @@ export const UserServices = {
   getAllUser,
   getSingleUser,
   getMe,
+  getAdmins,
   updateUser,
   RoleChangeRequest,
   updateRole,

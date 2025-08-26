@@ -27,7 +27,7 @@ const getAllUser = catchAsync(
     );
 
     SendResponse(res, {
-      statusCode: 201,
+      statusCode: 200,
       success: true,
       message: "User retrived successfully.",
       data: result.data,
@@ -42,7 +42,7 @@ const getSingleUser = catchAsync(
     const result = await UserServices.getSingleUser(_id);
 
     SendResponse(res, {
-      statusCode: 201,
+      statusCode: 200,
       success: true,
       message: "User retrived successfully.",
       data: result.data,
@@ -56,7 +56,19 @@ const getMe = catchAsync(
     const result = await UserServices.getMe(user.userId);
 
     SendResponse(res, {
-      statusCode: 201,
+      statusCode: 200,
+      success: true,
+      message: "User retrived successfully.",
+      data: result.data,
+    });
+  }
+);
+const getAdmins = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await UserServices.getAdmins();
+
+    SendResponse(res, {
+      statusCode: 200,
       success: true,
       message: "User retrived successfully.",
       data: result.data,
@@ -152,6 +164,7 @@ export const userControllers = {
   getAllUser,
   getSingleUser,
   getMe,
+  getAdmins,
   updateUser,
   RoleChangeRequest,
   updateRole,

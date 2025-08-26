@@ -73,6 +73,23 @@ const rideRequest = async (
   };
 };
 
+const rideDetails = async (decodedToken: JwtPayload) => {
+  const details = await Ride.findOne({
+    riderId: decodedToken.userId,
+    rideStatus: { $nin: [RideStatus.CANCELED, RideStatus.COMPLETED] },
+  })
+    .populate("riderId", "-password -phone")
+    .populate("driverId", "-password");
+
+  if (!details) {
+    throw new AppError(404, "Ride not found.");
+  }
+
+  return {
+    data: details,
+  };
+};
+
 const rideCancel = async (decodedToken: JwtPayload) => {
   const isRideExist = await Ride.findOne({
     riderId: decodedToken.userId,
@@ -105,7 +122,10 @@ const rideHistory = async (
 
   const history = queryModel.filter().sort().fields().paginate();
 
-  const [data, meta] = await Promise.all([history.build(), history.getMeta()]);
+  const [data, meta] = await Promise.all([
+    (await history).build(),
+    queryModel.getMeta(),
+  ]);
 
   return {
     data,
@@ -129,7 +149,7 @@ const allRideHistory = async (query: Record<string, string>) => {
   const history = queryModel.filter().sort().fields().paginate();
 
   const [data, meta] = await Promise.all([
-    history.build(),
+    (await history).build(),
     queryModel.getMeta(),
   ]);
 
@@ -141,6 +161,7 @@ const allRideHistory = async (query: Record<string, string>) => {
 
 export const RideServices = {
   rideRequest,
+  rideDetails,
   rideCancel,
   rideHistory,
   rideCancelDeletion,

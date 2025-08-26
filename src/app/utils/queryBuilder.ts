@@ -47,9 +47,11 @@ export class QueryBuilder<T> {
     return this;
   }
 
-  paginate(): this {
+  async paginate(): Promise<this> {
+    const totalDocument = await this.modelQuery.clone().countDocuments();
     const page = Number(this.query?.page) || 1;
-    const limit = Number(this.query?.limit) || 10;
+    const limit =
+      Number(this.query?.limit) || (totalDocument > 0 ? totalDocument : 1);
     const skip = (page - 1) * limit;
 
     this.modelQuery = this.modelQuery.skip(skip).limit(limit);
@@ -57,9 +59,10 @@ export class QueryBuilder<T> {
   }
 
   async getMeta() {
-    const totalDocument = await this.modelQuery.model.countDocuments();
+    const totalDocument = await this.modelQuery.clone().countDocuments();
     const page = Number(this.query?.page) || 1;
-    const limit = Number(this.query?.limit) || 10;
+    const limit =
+      Number(this.query?.limit) || (totalDocument > 0 ? totalDocument : 1);
     const totalPage = Math.ceil(totalDocument / limit);
 
     return {

@@ -20,7 +20,7 @@ router.get(
 );
 
 router.get(
-  "/pending-ride/:id",
+  "/pending-ride",
   checkAuth(Role.DRIVER),
   DriverControllers.pendingRideStatus
 );

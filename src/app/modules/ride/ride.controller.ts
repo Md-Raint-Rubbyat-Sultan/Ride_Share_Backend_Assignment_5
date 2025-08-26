@@ -23,6 +23,21 @@ const rideRequest = catchAsync(
   }
 );
 
+const rideDetails = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user;
+
+    const result = await RideServices.rideDetails(decodedToken as JwtPayload);
+
+    SendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Details retrived successfully",
+      data: result.data,
+    });
+  }
+);
+
 const rideCancel = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload;
@@ -89,6 +104,7 @@ const allRideHistory = catchAsync(
 
 export const RideControllers = {
   rideRequest,
+  rideDetails,
   rideCancel,
   rideHistory,
   rideCancelDeletion,
