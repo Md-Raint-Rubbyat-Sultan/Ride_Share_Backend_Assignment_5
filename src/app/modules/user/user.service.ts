@@ -152,10 +152,7 @@ const updateUser = async (
 };
 
 const getAllRoleChangeRequest = async (query: Record<string, string>) => {
-  const queryModel = new QueryBuilder(
-    RoleChange.find({ status: RoleStatus.PENDING }),
-    query
-  );
+  const queryModel = new QueryBuilder(RoleChange.find(), query);
   const requsetedChanges = queryModel.filter().sort().paginate();
 
   const [data, meta] = await Promise.all([
@@ -258,7 +255,7 @@ const updateRole = async (_id: string, payload: string) => {
       await session.commitTransaction();
       session.endSession();
       return {
-        data: newUser,
+        data: "Role Update successful",
       };
     }
 
