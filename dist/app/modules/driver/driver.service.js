@@ -17,11 +17,17 @@ const mongoose_1 = require("mongoose");
 const user_model_1 = require("../user/user.model");
 const user_interface_1 = require("../user/user.interface");
 const AppError_1 = require("../../errorHelpers/AppError");
-const getRideRequest = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    const querModel = new queryBuilder_1.QueryBuilder(ride_model_1.Ride.find({ rideStatus: ride_interface_1.RideStatus.REQUESTED }), query);
+const now = new Date();
+const sevenDaysAgo = new Date(new Date().setDate(now.getDate() - 7));
+const thirtyDaysAgo = new Date(new Date().setDate(now.getDate() - 30));
+const getRideRequest = (query, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    const querModel = new queryBuilder_1.QueryBuilder(ride_model_1.Ride.find({
+        rideStatus: ride_interface_1.RideStatus.REQUESTED,
+        riderId: { $ne: decodedToken.userId },
+    }), query);
     const availableRide = querModel.sort().paginate();
     const [data, meta] = yield Promise.all([
-        availableRide.build(),
+        (yield availableRide).build().populate("riderId", "-password"),
         querModel.getMeta(),
     ]);
     return {
@@ -30,6 +36,7 @@ const getRideRequest = (query) => __awaiter(void 0, void 0, void 0, function* ()
     };
 });
 const getEarningHistory = (query, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
     const querModel = new queryBuilder_1.QueryBuilder(ride_model_1.Ride.find({
         driverId: decodedToken.userId,
         rideStatus: ride_interface_1.RideStatus.COMPLETED,
@@ -49,13 +56,50 @@ const getEarningHistory = (query, decodedToken) => __awaiter(void 0, void 0, voi
             },
         },
     ]);
-    const [allData, total, meta] = yield Promise.all([
-        earningHistory.build(),
+    const sevenDaysEarning = ride_model_1.Ride.aggregate([
+        {
+            $match: {
+                createdAt: { $gte: sevenDaysAgo },
+                rideStatus: ride_interface_1.RideStatus.COMPLETED,
+                driverId: new mongoose_1.Types.ObjectId(decodedToken.userId),
+            },
+        },
+        {
+            $group: {
+                _id: null,
+                total: { $sum: "$costOfRide" },
+            },
+        },
+    ]);
+    const monthlyEarningPromise = ride_model_1.Ride.aggregate([
+        {
+            $match: {
+                createdAt: { $gte: thirtyDaysAgo },
+                rideStatus: ride_interface_1.RideStatus.COMPLETED,
+                driverId: new mongoose_1.Types.ObjectId(decodedToken.userId),
+            },
+        },
+        {
+            $group: {
+                _id: null,
+                total: { $sum: "$costOfRide" },
+            },
+        },
+    ]);
+    const [allData, total, weeklyEarning, monthlyEarning, meta] = yield Promise.all([
+        (yield earningHistory).build(),
         totalEarning,
+        sevenDaysEarning,
+        monthlyEarningPromise,
         querModel.getMeta(),
     ]);
     return {
-        data: { data: allData, totalEarning: total[0].totalEarning },
+        data: {
+            data: allData,
+            totalEarning: (_a = total[0]) === null || _a === void 0 ? void 0 : _a.totalEarning,
+            weeklyEarning: (_b = weeklyEarning[0]) === null || _b === void 0 ? void 0 : _b.total,
+            monthlyEarning: (_c = monthlyEarning[0]) === null || _c === void 0 ? void 0 : _c.total,
+        },
         meta,
     };
 });
@@ -135,14 +179,13 @@ const beADriver = (_id, payload, decodedToken) => __awaiter(void 0, void 0, void
         data: updatedRide,
     };
 });
-const pendingRideStatus = (_id, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+const pendingRideStatus = (decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
     const pendingStatus = yield ride_model_1.Ride.findOne({
-        _id: _id,
         driverId: decodedToken.userId,
         rideStatus: {
             $in: [ride_interface_1.RideStatus.ACCEPTED, ride_interface_1.RideStatus.IN_TRANSIT, ride_interface_1.RideStatus.PICKED_UP],
         },
-    });
+    }).populate("riderId", "-password");
     return {
         data: pendingStatus,
     };

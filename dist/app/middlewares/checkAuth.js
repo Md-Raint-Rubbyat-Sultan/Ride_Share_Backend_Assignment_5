@@ -17,7 +17,7 @@ const env_config_1 = require("../configs/env.config");
 const user_model_1 = require("../modules/user/user.model");
 const user_interface_1 = require("../modules/user/user.interface");
 const checkAuth = (...authRoles) => (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const accessToken = req.headers.authorization;
+    const accessToken = req.cookies.accessToken || req.headers.authorization;
     if (!accessToken) {
         throw new AppError_1.AppError(403, "Token not found. You'r unauthorized.");
     }

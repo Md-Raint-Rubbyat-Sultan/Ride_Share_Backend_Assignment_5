@@ -48,19 +48,22 @@ class QueryBuilder {
         return this;
     }
     paginate() {
-        var _a, _b;
-        const page = Number((_a = this.query) === null || _a === void 0 ? void 0 : _a.page) || 1;
-        const limit = Number((_b = this.query) === null || _b === void 0 ? void 0 : _b.limit) || 10;
-        const skip = (page - 1) * limit;
-        this.modelQuery = this.modelQuery.skip(skip).limit(limit);
-        return this;
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            const totalDocument = yield this.modelQuery.clone().countDocuments();
+            const page = Number((_a = this.query) === null || _a === void 0 ? void 0 : _a.page) || 1;
+            const limit = Number((_b = this.query) === null || _b === void 0 ? void 0 : _b.limit) || (totalDocument > 0 ? totalDocument : 1);
+            const skip = (page - 1) * limit;
+            this.modelQuery = this.modelQuery.skip(skip).limit(limit);
+            return this;
+        });
     }
     getMeta() {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
-            const totalDocument = yield this.modelQuery.model.countDocuments();
+            const totalDocument = yield this.modelQuery.clone().countDocuments();
             const page = Number((_a = this.query) === null || _a === void 0 ? void 0 : _a.page) || 1;
-            const limit = Number((_b = this.query) === null || _b === void 0 ? void 0 : _b.limit) || 10;
+            const limit = Number((_b = this.query) === null || _b === void 0 ? void 0 : _b.limit) || (totalDocument > 0 ? totalDocument : 1);
             const totalPage = Math.ceil(totalDocument / limit);
             return {
                 page,

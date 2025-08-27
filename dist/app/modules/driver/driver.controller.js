@@ -15,7 +15,8 @@ const driver_service_1 = require("./driver.service");
 const SendResponse_1 = require("../../utils/SendResponse");
 const getRideRequest = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const query = req.query;
-    const result = yield driver_service_1.DriverServices.getRideRequest(query);
+    const decodedToken = req.user;
+    const result = yield driver_service_1.DriverServices.getRideRequest(query, decodedToken);
     (0, SendResponse_1.SendResponse)(res, {
         statusCode: 200,
         success: true,
@@ -49,9 +50,8 @@ const beADriver = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(voi
     });
 }));
 const pendingRideStatus = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const _id = req.params.id;
     const decodedToken = req.user;
-    const result = yield driver_service_1.DriverServices.pendingRideStatus(_id, decodedToken);
+    const result = yield driver_service_1.DriverServices.pendingRideStatus(decodedToken);
     (0, SendResponse_1.SendResponse)(res, {
         statusCode: 200,
         success: true,

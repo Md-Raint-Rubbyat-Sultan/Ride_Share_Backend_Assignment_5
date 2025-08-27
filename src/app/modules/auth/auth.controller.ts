@@ -73,13 +73,13 @@ const logout = catchAsync(
     res.clearCookie("accessToken", {
       httpOnly: true,
       secure: envVars.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
     });
 
     res.clearCookie("refereshToken", {
       httpOnly: true,
       secure: envVars.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none",
     });
 
     SendResponse(res, {

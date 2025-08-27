@@ -77,12 +77,12 @@ const logout = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0
     res.clearCookie("accessToken", {
         httpOnly: true,
         secure: env_config_1.envVars.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
     });
     res.clearCookie("refereshToken", {
         httpOnly: true,
         secure: env_config_1.envVars.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "none",
     });
     (0, SendResponse_1.SendResponse)(res, {
         statusCode: 200,

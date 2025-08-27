@@ -24,6 +24,16 @@ const rideRequest = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(v
         data: result.data,
     });
 }));
+const rideDetails = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    const result = yield ride_service_1.RideServices.rideDetails(decodedToken);
+    (0, SendResponse_1.SendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Details retrived successfully",
+        data: result.data,
+    });
+}));
 const rideCancel = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const decodedToken = req.user;
     const result = yield ride_service_1.RideServices.rideCancel(decodedToken);
@@ -68,6 +78,7 @@ const allRideHistory = (0, catchAsync_1.catchAsync)((req, res, next) => __awaite
 }));
 exports.RideControllers = {
     rideRequest,
+    rideDetails,
     rideCancel,
     rideHistory,
     rideCancelDeletion,

@@ -28,7 +28,7 @@ const getAllUser = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(vo
     const query = req.query;
     const result = yield user_service_1.UserServices.getAllUser(query);
     (0, SendResponse_1.SendResponse)(res, {
-        statusCode: 201,
+        statusCode: 200,
         success: true,
         message: "User retrived successfully.",
         data: result.data,
@@ -39,7 +39,7 @@ const getSingleUser = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter
     const _id = req.params.id;
     const result = yield user_service_1.UserServices.getSingleUser(_id);
     (0, SendResponse_1.SendResponse)(res, {
-        statusCode: 201,
+        statusCode: 200,
         success: true,
         message: "User retrived successfully.",
         data: result.data,
@@ -49,7 +49,16 @@ const getMe = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0,
     const user = req.user;
     const result = yield user_service_1.UserServices.getMe(user.userId);
     (0, SendResponse_1.SendResponse)(res, {
-        statusCode: 201,
+        statusCode: 200,
+        success: true,
+        message: "User retrived successfully.",
+        data: result.data,
+    });
+}));
+const getAdmins = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.UserServices.getAdmins();
+    (0, SendResponse_1.SendResponse)(res, {
+        statusCode: 200,
         success: true,
         message: "User retrived successfully.",
         data: result.data,
@@ -120,6 +129,7 @@ exports.userControllers = {
     getAllUser,
     getSingleUser,
     getMe,
+    getAdmins,
     updateUser,
     RoleChangeRequest,
     updateRole,

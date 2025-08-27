@@ -11,6 +11,7 @@ const router = (0, express_1.Router)();
 router.post("/create", (0, validateRequest_1.validateRequest)(user_validation_1.createUserZodSchema), user_controller_1.userControllers.createUser);
 router.get("/", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN), user_controller_1.userControllers.getAllUser);
 router.get("/me", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), user_controller_1.userControllers.getMe);
+router.get("/admins", user_controller_1.userControllers.getAdmins);
 router.get("/req-role/all-req", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN), user_controller_1.userControllers.getAllRoleChangeRequest);
 router.get("/req-role/stats", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN), user_controller_1.userControllers.requestRoleStats);
 router.post("/req-role/request", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), (0, validateRequest_1.validateRequest)(user_validation_1.RoleChangeRequestZodSchema), user_controller_1.userControllers.RoleChangeRequest);

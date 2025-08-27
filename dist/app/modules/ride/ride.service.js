@@ -56,6 +56,20 @@ const rideRequest = (payload, decodedToken) => __awaiter(void 0, void 0, void 0,
         data: ride,
     };
 });
+const rideDetails = (decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    const details = yield ride_model_1.Ride.findOne({
+        riderId: decodedToken.userId,
+        rideStatus: { $nin: [ride_interface_1.RideStatus.CANCELED, ride_interface_1.RideStatus.COMPLETED] },
+    })
+        .populate("riderId", "-password -phone")
+        .populate("driverId", "-password");
+    if (!details) {
+        throw new AppError_1.AppError(404, "Ride not found.");
+    }
+    return {
+        data: details,
+    };
+});
 const rideCancel = (decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
     const isRideExist = yield ride_model_1.Ride.findOne({
         riderId: decodedToken.userId,
@@ -72,7 +86,10 @@ const rideCancel = (decodedToken) => __awaiter(void 0, void 0, void 0, function*
 const rideHistory = (decodedToken, query) => __awaiter(void 0, void 0, void 0, function* () {
     const queryModel = new queryBuilder_1.QueryBuilder(ride_model_1.Ride.find({ riderId: decodedToken.userId }), query);
     const history = queryModel.filter().sort().fields().paginate();
-    const [data, meta] = yield Promise.all([history.build(), history.getMeta()]);
+    const [data, meta] = yield Promise.all([
+        (yield history).build(),
+        queryModel.getMeta(),
+    ]);
     return {
         data,
         meta,
@@ -90,7 +107,7 @@ const allRideHistory = (query) => __awaiter(void 0, void 0, void 0, function* ()
     const queryModel = new queryBuilder_1.QueryBuilder(ride_model_1.Ride.find(), query);
     const history = queryModel.filter().sort().fields().paginate();
     const [data, meta] = yield Promise.all([
-        history.build(),
+        (yield history).build(),
         queryModel.getMeta(),
     ]);
     return {
@@ -100,6 +117,7 @@ const allRideHistory = (query) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.RideServices = {
     rideRequest,
+    rideDetails,
     rideCancel,
     rideHistory,
     rideCancelDeletion,

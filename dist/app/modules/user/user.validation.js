@@ -27,8 +27,8 @@ exports.updateUserZodSchema = zod_1.default.object({
         .optional(),
     phone: zod_1.default
         .string()
-        .regex(/^(?:\+8801\d[9])|01\d[9]$/, {
-        message: "Invalied phone number. Formet: +8801xxxxxxxxx or 01xxxxxxxxx",
+        .regex(/^(?:\+8801\d{9})|01\d{9}$/, {
+        error: "Invalied phone number. Formet: +8801xxxxxxxxx or 01xxxxxxxxx",
     })
         .optional(),
     role: zod_1.default.enum(Object.values(user_interface_1.Role)).optional(),
@@ -37,6 +37,7 @@ exports.updateUserZodSchema = zod_1.default.object({
     isVerified: zod_1.default.boolean().optional(),
     address: zod_1.default.string().optional(),
     isOnline: zod_1.default.enum(Object.values(user_interface_1.IsOnline)).optional(),
+    Vehicle: zod_1.default.enum(Object.values(user_interface_1.IVehicle)).optional(),
 });
 exports.RoleChangeRequestZodSchema = zod_1.default.object({
     reqRole: zod_1.default.enum([user_interface_1.Role.ADMIN, user_interface_1.Role.DRIVER], {

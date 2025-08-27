@@ -9,6 +9,7 @@ const validateRequest_1 = require("../../middlewares/validateRequest");
 const ride_validation_1 = require("./ride.validation");
 const router = (0, express_1.Router)();
 router.post("/request", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), (0, validateRequest_1.validateRequest)(ride_validation_1.RideRequestZodSchema), ride_controller_1.RideControllers.rideRequest);
+router.get("/ride-details", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), ride_controller_1.RideControllers.rideDetails);
 router.patch("/cancel", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), ride_controller_1.RideControllers.rideCancel);
 router.get("/history", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), ride_controller_1.RideControllers.rideHistory);
 router.delete("/delete-all-cancel", (0, checkAuth_1.checkAuth)(user_interface_1.Role.ADMIN), ride_controller_1.RideControllers.rideCancelDeletion);

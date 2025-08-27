@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserServices = void 0;
 const AppError_1 = require("../../errorHelpers/AppError");
@@ -25,8 +36,9 @@ const createUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
         providerId: payload.email,
     };
     const user = yield user_model_1.User.create(Object.assign(Object.assign({}, payload), { auth: [authProvider] }));
+    const _a = user.toObject(), { password } = _a, rest = __rest(_a, ["password"]);
     return {
-        data: user,
+        data: rest,
     };
 });
 const getAllUser = (query) => __awaiter(void 0, void 0, void 0, function* () {
@@ -38,7 +50,7 @@ const getAllUser = (query) => __awaiter(void 0, void 0, void 0, function* () {
         .fields()
         .paginate();
     let [data, meta] = yield Promise.all([
-        user.build().select("-password"),
+        (yield user).build().select("-password"),
         queryModel.getMeta(),
     ]);
     return {
@@ -64,6 +76,15 @@ const getMe = (_id) => __awaiter(void 0, void 0, void 0, function* () {
         data: user,
     };
 });
+const getAdmins = () => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.find({ role: user_interface_1.Role.ADMIN }).select("-password");
+    if (!user) {
+        throw new AppError_1.AppError(404, "User not found.");
+    }
+    return {
+        data: user,
+    };
+});
 const updateUser = (userId, payload, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
     if (decodedToken.role === user_interface_1.Role.USER || decodedToken.role === user_interface_1.Role.DRIVER) {
         if (userId !== decodedToken.userId) {
@@ -82,10 +103,17 @@ const updateUser = (userId, payload, decodedToken) => __awaiter(void 0, void 0, 
             throw new AppError_1.AppError(403, "Your are forbidden to update role.");
         }
     }
-    if (!isUserExist.isVerified ||
-        isUserExist.isActive === user_interface_1.IsActive.INACTIVE ||
-        isUserExist.isActive === user_interface_1.IsActive.BLOCKED ||
-        isUserExist.isDeleted) {
+    if (payload.Vehicle && isUserExist.role !== user_interface_1.Role.DRIVER) {
+        throw new AppError_1.AppError(400, "You must be a driver to have vehicle.");
+    }
+    const isUpdateable = yield user_model_1.User.findById(decodedToken.userId);
+    if (!isUpdateable) {
+        throw new AppError_1.AppError(404, "User not found.");
+    }
+    if (!isUpdateable.isVerified ||
+        isUpdateable.isActive === user_interface_1.IsActive.INACTIVE ||
+        isUpdateable.isActive === user_interface_1.IsActive.BLOCKED ||
+        isUpdateable.isDeleted) {
         throw new AppError_1.AppError(400, "Somethig went wrong. Please contact our tema. User either 'inactive' or 'blocked' or 'deleted' or 'not varified'");
     }
     const newUpdatedUser = yield user_model_1.User.findByIdAndUpdate(userId, payload, {
@@ -96,9 +124,9 @@ const updateUser = (userId, payload, decodedToken) => __awaiter(void 0, void 0, 
 });
 const getAllRoleChangeRequest = (query) => __awaiter(void 0, void 0, void 0, function* () {
     const queryModel = new queryBuilder_1.QueryBuilder(user_model_1.RoleChange.find(), query);
-    const requsetedChanges = queryModel.sort().paginate();
+    const requsetedChanges = queryModel.filter().sort().paginate();
     const [data, meta] = yield Promise.all([
-        requsetedChanges.build(),
+        (yield requsetedChanges).build().populate("userId", "-password"),
         queryModel.getMeta(),
     ]);
     return {
@@ -161,7 +189,7 @@ const updateRole = (_id, payload) => __awaiter(void 0, void 0, void 0, function*
             yield session.commitTransaction();
             session.endSession();
             return {
-                data: newUser,
+                data: "Role Update successful",
             };
         }
         if (updatedRole.status === user_interface_1.RoleStatus.CANCELED) {
@@ -205,6 +233,7 @@ exports.UserServices = {
     getAllUser,
     getSingleUser,
     getMe,
+    getAdmins,
     updateUser,
     RoleChangeRequest,
     updateRole,
