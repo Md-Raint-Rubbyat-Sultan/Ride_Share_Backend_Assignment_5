@@ -149,7 +149,10 @@ const allRideHistory = async (query: Record<string, string>) => {
   const history = queryModel.filter().sort().fields().paginate();
 
   const [data, meta] = await Promise.all([
-    (await history).build(),
+    (await history)
+      .build()
+      .populate("riderId", "name")
+      .populate("driverId", "name"),
     queryModel.getMeta(),
   ]);
 
